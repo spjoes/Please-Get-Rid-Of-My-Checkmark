@@ -26,7 +26,7 @@ console.log("                   +++                  ");
 console.log("                                        ");
 console.log("\x1b[0m");  // Reset color
 
-console.log("Running BluecheckGONE v1.0.0 - 07/01/24 by @IAmTh3Person")
+console.log("Running BluecheckGONE v2.0.0 - 07/06/24 by @IAmTh3Person")
 
 
 var isVerified;
