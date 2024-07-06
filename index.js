@@ -29,12 +29,22 @@ console.log("\x1b[0m");  // Reset color
 console.log("Running BluecheckGONE v1.0.0 - 07/01/24 by @IAmTh3Person")
 
 
-async function grabAndDownloadProfilePicture() {
-    const data = await rwClient.v1.updateAccountProfile(); // updates profile with blank data so nothing is changed but we get the profile picture url
-    const profilePicture = data.profile_image_url_https.replace("_normal", "") || data.profile_image_url.replace("_normal", ""); // get the profile picture url and remove the _normal part to get the full size image
+var isVerified;
+var profilePictureVar;
+
+async function grabAndDownloadProfilePicture(profilePicture) {
     const response = await fetch(profilePicture);
     const buffer = await response.buffer();
     fs.writeFile(`./images/profile.png`, buffer, () => console.log('Profile picture downloaded!'));
+    return true;
+}
+
+async function grabUserData() {
+    const data = await rwClient.v2.me({
+        'user.fields': 'profile_image_url,verified,verified_type'
+    })
+    profilePictureVar = data.data.profile_image_url.replace("_normal", "");
+    isVerified = data.data.verified;
     return true;
 }
 
@@ -52,9 +62,14 @@ async function updateProfilePicture(imagePath) {
 
 //check if profile picture is already downloaded
 async function checkProfilePicture() {
+    await grabUserData();
+    if(isVerified === false) {
+        console.log('Account is not currently verified. Exiting...')
+        return false;
+    }
     if(!fs.existsSync('./images')) fs.mkdirSync('./images')
     if (!fs.existsSync('./images/profile.png')) {
-        await grabAndDownloadProfilePicture();
+        await grabAndDownloadProfilePicture(profilePictureVar);
         await updateProfilePicture('./images/profile.png')
     } else {
         console.log('Profile picture already downloaded. Skipping...')
